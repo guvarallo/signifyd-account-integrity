@@ -62,7 +62,7 @@ async function accountLogin(user, type) {
     method: 'POST',
     headers: {
       accept: 'application/json',
-      'SIGNIFYD-TEST-DECISION-RESPONSE': 'DENY',
+      'SIGNIFYD-TEST-DECISION-RESPONSE': 'ALLOW',
       'content-type': 'application/json',
       authorization: `Basic ${apiKey}`
     },
