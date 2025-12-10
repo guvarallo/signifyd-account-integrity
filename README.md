@@ -1,6 +1,6 @@
 # React + TypeScript Auth Sample
 
-Simple sample app demonstrating sign up / sign in by email and basic account management (change email/password) using a minimal Node backend and browser localStorage for token.
+Simple sample app demonstrating sign up / sign in by email wired with Signifyd's Account Integrity APIs.
 
 Getting started
 
