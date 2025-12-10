@@ -1,0 +1,14 @@
+[
+  {
+    "id": "mj09uekuqx9e2r",
+    "email": "gus@gus.com",
+    "username": "gus",
+    "passwordHash": "$2a$10$22SvN4jzMAkmoKezTOehrOYCFx6vfcggtTEoPTpYrGxBEQ6PYD00e"
+  },
+  {
+    "id": "mj0eh10fxyvbyy",
+    "email": "gus1@gus1.com",
+    "username": "gus1",
+    "passwordHash": "$2a$10$3/4MeYrZyKD4vinfTF8r7uzcYcRjWjYGUVF0meRdTkkoEWCNt7IUm"
+  }
+]
