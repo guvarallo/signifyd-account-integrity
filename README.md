@@ -4,7 +4,7 @@ Simple sample app demonstrating sign up / sign in by email wired with Signifyd's
 
 Getting started
 
-1. Install dependencies (root of project folder)
+1. Install dependencies (root of project folder and server folder)
 
 ```bash
 cd react-ts-auth-sample
