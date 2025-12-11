@@ -12,6 +12,14 @@ npm install
 cd server && npm install
 ```
 
+Next, create file inside the `server` folder named `apiKey.js` with your API key:
+
+```bash
+const apiKey = 'YOUR_API_KEY'
+
+module.exports = { apiKey }
+```
+
 2. Run backend server and frontend dev server (two terminals recommended)
 
 ```bash
