@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 
-const AccountPage: React.FC = () => {
+interface AccountPageProps {
+  session: string
+}
+
+const AccountPage: React.FC<AccountPageProps> = ({ session }) => {
   const { user, updateEmail, updatePassword, updateUsername } = useAuth()
   const [newEmail, setNewEmail] = useState(user?.email || '')
   const [newUsername, setNewUsername] = useState(user?.username || '')

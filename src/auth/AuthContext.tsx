@@ -5,8 +5,13 @@ type User = { id: string; email: string; username: string }
 
 type AuthContextType = {
   user: User | null
-  signUp: (email: string, password: string, username: string) => Promise<void>
-  signIn: (email: string, password: string) => Promise<void>
+  signUp: (
+    email: string,
+    password: string,
+    username: string,
+    session: string
+  ) => Promise<void>
+  signIn: (email: string, password: string, session: string) => Promise<void>
   signOut: () => void
   updateEmail: (newEmail: string) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
@@ -44,22 +49,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       .catch(() => localStorage.removeItem(TOKEN_KEY))
   }, [])
 
-  async function signUp(email: string, password: string, username: string) {
+  async function signUp(
+    email: string,
+    password: string,
+    username: string,
+    session: string
+  ) {
     const res = await fetch(`${API_BASE}/api/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, username })
+      body: JSON.stringify({ email, password, username, session })
     })
     const data = await handleResp(res)
     localStorage.setItem(TOKEN_KEY, data.token)
     setUser(data.user)
   }
 
-  async function signIn(email: string, password: string) {
+  async function signIn(email: string, password: string, session: string) {
     const res = await fetch(`${API_BASE}/api/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, session })
     })
     const data = await handleResp(res)
     localStorage.setItem(TOKEN_KEY, data.token)

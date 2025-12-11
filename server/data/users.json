@@ -6,21 +6,9 @@
     "passwordHash": "$2a$10$22SvN4jzMAkmoKezTOehrOYCFx6vfcggtTEoPTpYrGxBEQ6PYD00e"
   },
   {
-    "id": "mj0eh10fxyvbyy",
-    "email": "gus1@gus1.com",
-    "username": "gus1",
-    "passwordHash": "$2a$10$3/4MeYrZyKD4vinfTF8r7uzcYcRjWjYGUVF0meRdTkkoEWCNt7IUm"
-  },
-  {
-    "id": "mj09uekuqx9e2r",
-    "email": "gus@gus.com",
-    "username": "gus",
-    "passwordHash": "$2a$10$22SvN4jzMAkmoKezTOehrOYCFx6vfcggtTEoPTpYrGxBEQ6PYD00e"
-  },
-  {
-    "id": "mj09uekuqx9e2r",
-    "email": "gus@gus.com",
-    "username": "gus",
-    "passwordHash": "$2a$10$22SvN4jzMAkmoKezTOehrOYCFx6vfcggtTEoPTpYrGxBEQ6PYD00e"
+    "id": "mj1g5mjkp3hm4m",
+    "email": "tester@tester.com",
+    "username": "tester",
+    "passwordHash": "$2a$10$oJh4p70x68sQbdzVtb8KPeMEegjm3ftFAxUmqDiYpHi5O/uZThLYi"
   }
 ]

@@ -28,7 +28,7 @@ function saveUsers(users) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2), 'utf8')
 }
 
-async function accountLogin(user, type) {
+async function accountLogin(user, session, type) {
   const signinUrl = 'https://api.signifyd.com/v3/accounts/events/logins'
   const signupUrl = 'https://api.signifyd.com/v3/accounts/events/openings'
   const now = new Date()
@@ -47,7 +47,8 @@ async function accountLogin(user, type) {
           email: user.email
         },
         loginAt: isoDate,
-        loginId: randomId
+        loginId: randomId,
+        device: { sessionId: session }
       }
     : {
         signupMethod: 'PASSWORD',
@@ -56,13 +57,14 @@ async function accountLogin(user, type) {
         accountId: user.id,
         username: user.username,
         email: user.email,
-        createdAt: isoDate
+        createdAt: isoDate,
+        device: { sessionId: session }
       }
   const options = {
     method: 'POST',
     headers: {
       accept: 'application/json',
-      'SIGNIFYD-TEST-DECISION-RESPONSE': 'ALLOW',
+      // 'SIGNIFYD-TEST-DECISION-RESPONSE': 'ALLOW',
       'content-type': 'application/json',
       authorization: `Basic ${apiKey}`
     },
@@ -101,7 +103,7 @@ function authMiddleware(req, res, next) {
 }
 
 app.post('/api/signup', async (req, res) => {
-  const { email, password, username } = req.body || {}
+  const { email, password, username, session } = req.body || {}
   if (!email || !password || !username)
     return res
       .status(400)
@@ -120,7 +122,7 @@ app.post('/api/signup', async (req, res) => {
   const user = { id, email, username, passwordHash: hash }
 
   // Signifyd account opening event
-  const sigRes = await accountLogin(user)
+  const sigRes = await accountLogin(user, session)
   console.log('Signifyd signup response:', sigRes)
   console.log('Policies:', sigRes.decision?.policies)
 
@@ -150,7 +152,8 @@ app.post('/api/signup', async (req, res) => {
 })
 
 app.post('/api/signin', async (req, res) => {
-  const { email, password } = req.body || {}
+  const { email, password, session } = req.body || {}
+  console.log('Signin session id:', session)
   if (!email || !password)
     return res.status(400).json({ error: 'Email and password required' })
   const users = loadUsers()
@@ -160,15 +163,15 @@ app.post('/api/signin', async (req, res) => {
   if (!ok) return res.status(400).json({ error: 'Invalid credentials' })
 
   // Signifyd account opening event
-  const sigRes = await accountLogin(user, 'signin')
+  const sigRes = await accountLogin(user, session, 'signin')
   console.log('Signifyd signin response:', sigRes)
   console.log('Policies:', sigRes.decision?.policies)
 
   if (sigRes.decision?.checkpointAction === 'ALLOW') {
-    users.push(user)
-    saveUsers(users)
-    const token = signToken(user)
-    res.json({ user: { id: user.id, email: user.email }, token })
+    res.status(200).json({
+      user: { id: user.id, email: user.email, username: user.username },
+      token: signToken(user)
+    })
   }
 
   if (sigRes.decision?.checkpointAction === 'STEP_UP') {

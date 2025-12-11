@@ -9,9 +9,12 @@
     "server": "nodemon server/index.js"
   },
   "dependencies": {
+    "@types/react-helmet": "^6.1.11",
     "axios": "^1.13.2",
-    "react": "^18.2.0",
+    "helmet": "^8.1.0",
+    "react": "^18.3.1",
     "react-dom": "^18.2.0",
+    "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.18.0"
   },
   "devDependencies": {

@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 
-const AuthPage: React.FC = () => {
+interface AuthPageProps {
+  session: string
+}
+
+const AuthPage: React.FC<AuthPageProps> = ({ session }) => {
   const { signIn, signUp } = useAuth()
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [username, setUserName] = useState('')
@@ -13,8 +17,8 @@ const AuthPage: React.FC = () => {
     e.preventDefault()
     setErr(null)
     try {
-      if (mode === 'signin') await signIn(email.trim(), password)
-      else await signUp(email.trim(), password, username.trim())
+      if (mode === 'signin') await signIn(email.trim(), password, session)
+      else await signUp(email.trim(), password, username.trim(), session)
     } catch (e: any) {
       setErr(e?.message || 'An error occurred')
     }
