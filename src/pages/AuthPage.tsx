@@ -12,6 +12,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ session }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [err, setErr] = useState<string | null>(null)
+  const [overrideDecision, setOverrideDecision] = useState(false)
+  const [overrideChoice, setOverrideChoice] = useState<
+    'ALLOW' | 'DENY' | 'STEP_UP' | 'FLAG' | 'ALERT' | ''
+  >('ALLOW')
+
+  console.log('overrideChoice', overrideChoice)
+  console.log('overrideDecision', overrideDecision)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -65,6 +72,64 @@ const AuthPage: React.FC<AuthPageProps> = ({ session }) => {
           required
         />
         {err && <div style={{ color: 'crimson' }}>{err}</div>}
+        <div style={{ marginTop: 16, marginBottom: 12 }}>
+          <label
+            className='small'
+            style={{ display: 'block', marginBottom: 8 }}
+          >
+            Override decision?
+          </label>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type='radio'
+                name='override'
+                checked={!overrideDecision}
+                onChange={() => {
+                  setOverrideDecision(false)
+                  setOverrideChoice('')
+                }}
+              />
+              No
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type='radio'
+                name='override'
+                checked={overrideDecision}
+                onChange={() => setOverrideDecision(true)}
+              />
+              Yes
+            </label>
+          </div>
+          {overrideDecision && (
+            <select
+              value={overrideChoice}
+              onChange={e =>
+                setOverrideChoice(
+                  e.target.value as
+                    | 'ALLOW'
+                    | 'DENY'
+                    | 'STEP_UP'
+                    | 'FLAG'
+                    | 'ALERT'
+                )
+              }
+              style={{
+                padding: '8px 4px',
+                fontSize: '14px',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+            >
+              <option value='ALLOW'>ALLOW</option>
+              <option value='DENY'>DENY</option>
+              <option value='STEP_UP'>STEP_UP</option>
+              <option value='FLAG'>FLAG</option>
+              <option value='ALERT'>ALERT</option>
+            </select>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button type='submit'>
             {mode === 'signin' ? 'Sign in' : 'Create account'}
