@@ -10,5 +10,11 @@
     "email": "tester@tester.com",
     "username": "tester",
     "passwordHash": "$2a$10$oJh4p70x68sQbdzVtb8KPeMEegjm3ftFAxUmqDiYpHi5O/uZThLYi"
+  },
+  {
+    "id": "mj1gm15ja391qb",
+    "email": "ab@ab.com",
+    "username": "ab",
+    "passwordHash": "$2a$10$KWZb292xrZCNpOzNjdbRWel/1Lt969uvN5vNmdK4878EB7GMyw1lq"
   }
 ]

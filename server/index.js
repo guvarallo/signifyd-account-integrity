@@ -28,7 +28,7 @@ function saveUsers(users) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2), 'utf8')
 }
 
-async function accountLogin(user, session, type) {
+async function accountLogin(user, session, ip, type) {
   const signinUrl = 'https://api.signifyd.com/v3/accounts/events/logins'
   const signupUrl = 'https://api.signifyd.com/v3/accounts/events/openings'
   const now = new Date()
@@ -48,7 +48,7 @@ async function accountLogin(user, session, type) {
         },
         loginAt: isoDate,
         loginId: randomId,
-        device: { sessionId: session }
+        device: { sessionId: session, clientIpAddress: ip }
       }
     : {
         signupMethod: 'PASSWORD',
@@ -58,7 +58,7 @@ async function accountLogin(user, session, type) {
         username: user.username,
         email: user.email,
         createdAt: isoDate,
-        device: { sessionId: session }
+        device: { sessionId: session, clientIpAddress: ip }
       }
   const options = {
     method: 'POST',
@@ -104,6 +104,8 @@ function authMiddleware(req, res, next) {
 
 app.post('/api/signup', async (req, res) => {
   const { email, password, username, session } = req.body || {}
+  const ip = req.ip
+
   if (!email || !password || !username)
     return res
       .status(400)
@@ -122,7 +124,7 @@ app.post('/api/signup', async (req, res) => {
   const user = { id, email, username, passwordHash: hash }
 
   // Signifyd account opening event
-  const sigRes = await accountLogin(user, session)
+  const sigRes = await accountLogin(user, session, ip)
   console.log('Signifyd signup response:', sigRes)
   console.log('Policies:', sigRes.decision?.policies)
 
@@ -153,7 +155,8 @@ app.post('/api/signup', async (req, res) => {
 
 app.post('/api/signin', async (req, res) => {
   const { email, password, session } = req.body || {}
-  console.log('Signin session id:', session)
+  const ip = req.ip
+
   if (!email || !password)
     return res.status(400).json({ error: 'Email and password required' })
   const users = loadUsers()
@@ -163,7 +166,7 @@ app.post('/api/signin', async (req, res) => {
   if (!ok) return res.status(400).json({ error: 'Invalid credentials' })
 
   // Signifyd account opening event
-  const sigRes = await accountLogin(user, session, 'signin')
+  const sigRes = await accountLogin(user, session, ip, 'signin')
   console.log('Signifyd signin response:', sigRes)
   console.log('Policies:', sigRes.decision?.policies)
 
