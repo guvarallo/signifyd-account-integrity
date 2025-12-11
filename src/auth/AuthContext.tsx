@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { OverrideChoice } from '../utils/types'
 
 type User = { id: string; email: string; username: string }
 
@@ -9,9 +10,15 @@ type AuthContextType = {
     email: string,
     password: string,
     username: string,
-    session: string
+    session: string,
+    overrideChoice: OverrideChoice
   ) => Promise<void>
-  signIn: (email: string, password: string, session: string) => Promise<void>
+  signIn: (
+    email: string,
+    password: string,
+    session: string,
+    overrideChoice: OverrideChoice
+  ) => Promise<void>
   signOut: () => void
   updateEmail: (newEmail: string) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
@@ -53,23 +60,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     email: string,
     password: string,
     username: string,
-    session: string
+    session: string,
+    overrideChoice: OverrideChoice
   ) {
     const res = await fetch(`${API_BASE}/api/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, username, session })
+      body: JSON.stringify({
+        email,
+        password,
+        username,
+        session,
+        overrideChoice
+      })
     })
     const data = await handleResp(res)
     localStorage.setItem(TOKEN_KEY, data.token)
     setUser(data.user)
   }
 
-  async function signIn(email: string, password: string, session: string) {
+  async function signIn(
+    email: string,
+    password: string,
+    session: string,
+    overrideChoice: OverrideChoice
+  ) {
     const res = await fetch(`${API_BASE}/api/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, session })
+      body: JSON.stringify({ email, password, session, overrideChoice })
     })
     const data = await handleResp(res)
     localStorage.setItem(TOKEN_KEY, data.token)

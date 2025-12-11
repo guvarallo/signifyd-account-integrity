@@ -28,7 +28,7 @@ function saveUsers(users) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2), 'utf8')
 }
 
-async function accountLogin(user, session, ip, type) {
+async function accountLogin(user, session, ip, overrideChoice, type) {
   const signinUrl = 'https://api.signifyd.com/v3/accounts/events/logins'
   const signupUrl = 'https://api.signifyd.com/v3/accounts/events/openings'
   const now = new Date()
@@ -64,7 +64,9 @@ async function accountLogin(user, session, ip, type) {
     method: 'POST',
     headers: {
       accept: 'application/json',
-      // 'SIGNIFYD-TEST-DECISION-RESPONSE': 'ALLOW',
+      ...(overrideChoice && {
+        'SIGNIFYD-TEST-DECISION-RESPONSE': overrideChoice
+      }),
       'content-type': 'application/json',
       authorization: `Basic ${apiKey}`
     },
@@ -103,7 +105,7 @@ function authMiddleware(req, res, next) {
 }
 
 app.post('/api/signup', async (req, res) => {
-  const { email, password, username, session } = req.body || {}
+  const { email, password, username, session, overrideChoice } = req.body || {}
   const ip = req.ip
 
   if (!email || !password || !username)
@@ -124,37 +126,36 @@ app.post('/api/signup', async (req, res) => {
   const user = { id, email, username, passwordHash: hash }
 
   // Signifyd account opening event
-  const sigRes = await accountLogin(user, session, ip)
-  console.log('Signifyd signup response:', sigRes)
-  console.log('Policies:', sigRes.decision?.policies)
+  const sigRes = await accountLogin(user, session, ip, overrideChoice)
 
-  if (sigRes.decision?.checkpointAction === 'ALLOW') {
-    users.push(user)
-    saveUsers(users)
-    const token = signToken(user)
-    res.json({
-      user: { id: user.id, email: user.email, username: user.username },
-      token
-    })
-  }
-
-  if (sigRes.decision?.checkpointAction === 'STEP_UP') {
-    res.status(403).json({
-      error: 'Further verification required',
-      detail: 'STEP_UP'
-    })
-  }
-
-  if (sigRes.decision?.checkpointAction === 'DENY') {
-    res.status(403).json({
-      error: 'Account creation denied',
-      detail: 'DENY'
-    })
+  switch (sigRes.decision?.checkpointAction) {
+    case 'ALLOW':
+      users.push(user)
+      saveUsers(users)
+      const token = signToken(user)
+      return res.json({
+        user: { id: user.id, email: user.email, username: user.username },
+        token
+      })
+    case 'STEP_UP':
+      return res.status(403).json({
+        error: 'Further verification required',
+        detail: 'STEP_UP'
+      })
+    case 'DENY':
+      return res.status(403).json({
+        error: 'Account creation denied',
+        detail: 'DENY'
+      })
+    case 'FLAG':
+      return res.status(200)
+    case 'ALERT':
+      return res.status(200)
   }
 })
 
 app.post('/api/signin', async (req, res) => {
-  const { email, password, session } = req.body || {}
+  const { email, password, session, overrideChoice } = req.body || {}
   const ip = req.ip
 
   if (!email || !password)
@@ -166,29 +167,34 @@ app.post('/api/signin', async (req, res) => {
   if (!ok) return res.status(400).json({ error: 'Invalid credentials' })
 
   // Signifyd account opening event
-  const sigRes = await accountLogin(user, session, ip, 'signin')
-  console.log('Signifyd signin response:', sigRes)
-  console.log('Policies:', sigRes.decision?.policies)
+  const sigRes = await accountLogin(user, session, ip, overrideChoice, 'signin')
 
-  if (sigRes.decision?.checkpointAction === 'ALLOW') {
-    res.status(200).json({
-      user: { id: user.id, email: user.email, username: user.username },
-      token: signToken(user)
-    })
-  }
-
-  if (sigRes.decision?.checkpointAction === 'STEP_UP') {
-    res.status(403).json({
-      error: 'Further verification required to login',
-      detail: 'STEP_UP'
-    })
-  }
-
-  if (sigRes.decision?.checkpointAction === 'DENY') {
-    res.status(403).json({
-      error: 'Login denied',
-      detail: 'DENY'
-    })
+  switch (sigRes.decision?.checkpointAction) {
+    case 'ALLOW':
+      res.status(200).json({
+        user: { id: user.id, email: user.email, username: user.username },
+        token: signToken(user)
+      })
+    case 'STEP_UP':
+      return res.status(403).json({
+        error: 'Further verification required',
+        detail: 'STEP_UP'
+      })
+    case 'DENY':
+      return res.status(403).json({
+        error: 'Login was denied',
+        detail: 'DENY'
+      })
+    case 'FLAG':
+      return res.status(200).json({
+        user: { id: user.id, email: user.email, username: user.username },
+        token: signToken(user)
+      })
+    case 'ALERT':
+      return res.status(200).json({
+        user: { id: user.id, email: user.email, username: user.username },
+        token: signToken(user)
+      })
   }
 })
 

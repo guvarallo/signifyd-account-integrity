@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import { OverrideChoice } from '../utils/types'
 
 interface AuthPageProps {
   session: string
@@ -13,19 +14,23 @@ const AuthPage: React.FC<AuthPageProps> = ({ session }) => {
   const [password, setPassword] = useState('')
   const [err, setErr] = useState<string | null>(null)
   const [overrideDecision, setOverrideDecision] = useState(false)
-  const [overrideChoice, setOverrideChoice] = useState<
-    'ALLOW' | 'DENY' | 'STEP_UP' | 'FLAG' | 'ALERT' | ''
-  >('ALLOW')
-
-  console.log('overrideChoice', overrideChoice)
-  console.log('overrideDecision', overrideDecision)
+  const [overrideChoice, setOverrideChoice] =
+    useState<OverrideChoice>(undefined)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setErr(null)
     try {
-      if (mode === 'signin') await signIn(email.trim(), password, session)
-      else await signUp(email.trim(), password, username.trim(), session)
+      if (mode === 'signin')
+        await signIn(email.trim(), password, session, overrideChoice)
+      else
+        await signUp(
+          email.trim(),
+          password,
+          username.trim(),
+          session,
+          overrideChoice
+        )
     } catch (e: any) {
       setErr(e?.message || 'An error occurred')
     }
@@ -87,7 +92,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ session }) => {
                 checked={!overrideDecision}
                 onChange={() => {
                   setOverrideDecision(false)
-                  setOverrideChoice('')
+                  setOverrideChoice(undefined)
                 }}
               />
               No
